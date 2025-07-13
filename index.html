@@ -3,433 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>코딩 방탈출: 버그를 잡아라!</title>
+    <title>방탈출 게임: 시스템 복구</title>
     <style>
-        /* --- 기본 및 레이아웃 스타일 --- */
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Orbitron:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding&family=Orbitron:wght@400;700&display=swap');
 
         body {
-            font-family: 'Noto Sans KR', sans-serif;
-            margin: 0;
-            background-color: #1a1a1a;
-            color: #e0e0e0;
-            overflow: hidden;
+            font-family: 'Nanum Gothic Coding', monospace;
+            color: #00ff41;
+            text-align: center;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-        }
-
-        #game-container {
-            width: 1000px;
-            height: 700px;
-            border: 2px solid #444;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-            background-color: #000;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* --- 헤더 UI --- */
-        #header-ui {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background-color: rgba(0, 0, 0, 0.7);
-            border-bottom: 1px solid #0ff;
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        #stage-display, #timer {
-            font-size: 24px;
-            color: #0ff;
-            text-shadow: 0 0 5px #0ff;
-        }
-
-        #password-progress { display: flex; gap: 10px; }
-
-        .password-icon {
-            width: 30px; height: 30px; border: 2px solid #555; border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 20px; color: #555; transition: all 0.3s ease;
-        }
-        .password-icon.solved {
-            border-color: #0ff; color: #0ff; background-color: rgba(0, 255, 255, 0.2);
-            box-shadow: 0 0 10px #0ff;
-        }
-
-        /* --- 메인 게임 영역 --- */
-        #stage-area {
-            flex-grow: 1; position: relative; background-size: cover;
-            background-position: center; transition: background-image 1s ease-in-out;
-        }
-
-        .clue-box {
-            position: absolute; border: 3px dashed yellow; box-shadow: 0 0 15px yellow;
-            cursor: pointer; transition: all 0.2s ease;
-        }
-        .clue-box:hover { background-color: rgba(255, 255, 0, 0.2); }
-        .clue-box.solved { display: none; }
-
-        /* --- 힌트 고양이 --- */
-        #hint-cat-container {
-            position: absolute; bottom: 10px; right: 10px;
-            cursor: pointer; text-align: center;
-        }
-        #cat-emoji { font-size: 80px; transition: transform 0.2s; line-height: 1; }
-        #hint-cat-container:hover #cat-emoji { transform: scale(1.1); }
-        #speech-bubble {
-            position: absolute; bottom: 90px; right: 0;
-            background-color: rgba(255, 255, 255, 0.9); color: #333;
-            padding: 15px; border-radius: 10px; width: 250px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5); opacity: 0;
-            visibility: hidden; transition: all 0.3s; font-size: 14px;
-        }
-        #speech-bubble.show { opacity: 1; visibility: visible; }
-        #speech-bubble::after {
-            content: ''; position: absolute; bottom: -10px; right: 30px;
-            border-width: 10px; border-style: solid;
-            border-color: rgba(255, 255, 255, 0.9) transparent transparent transparent;
-        }
-
-        /* --- 모달 (팝업창) 스타일 --- */
-        .modal-backdrop {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.8); display: flex;
-            justify-content: center; align-items: center; z-index: 100;
-        }
-
-        .modal-content {
-            position: relative; /* 닫기 버튼 위치의 기준점 */
-            background: #222; padding: 30px; border-radius: 10px;
-            border: 1px solid #0ff; text-align: center;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-        }
-        
-        .modal-content h2 { margin-top: 0; color: #0ff; }
-
-        .modal-content input {
-            padding: 10px; font-size: 18px; width: 250px; margin: 10px 0;
-            background: #111; border: 1px solid #555; color: #eee; text-align: center;
-        }
-
-        .modal-content button {
-            padding: 10px 20px; font-size: 16px; cursor: pointer;
-            background-color: #0ff; border: none; color: #000;
-            font-weight: bold; border-radius: 5px; margin-top: 10px;
-        }
-        
-        /* [새로 추가] 닫기(X) 버튼 스타일 */
-        .close-modal-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 28px;
-            color: #888;
-            cursor: pointer;
-            transition: color 0.2s;
-            padding: 0;
+            min-height: 100vh;
             margin: 0;
-            line-height: 1;
+            background-color: #0a0a1a;
+            background-size: cover;
+            background-position: center;
+            transition: background-image 1s;
         }
-        .close-modal-btn:hover {
+        body.stage-1 { background-image: url('./1-1.jpg'); }
+        body.stage-2 { background-image: url('./2-1.jpg'); }
+        body.stage-3 { background-image: url('./3-1.jpg'); }
+
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            border: 2px solid #00ff41;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00ff41;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        h1, h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #ff00ff;
+            text-shadow: 0 0 5px #ff00ff;
+        }
+
+        .stage {
+            display: none; /* 기본적으로 모든 스테이지 숨김 */
+            padding: 20px;
+            border-top: 1px dashed #00ff41;
+            margin-top: 20px;
+        }
+
+        .stage.active {
+            display: block; /* 활성화된 스테이지 표시 */
+        }
+
+        .puzzle {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #1a1a2a;
+            border-left: 5px solid #00ff41;
+        }
+
+        .puzzle-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .puzzle-content {
+            margin: 10px 0;
+            color: #a0a0b0;
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background-color: #000;
             color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: left;
+            white-space: pre-wrap;
+            font-family: 'Nanum Gothic Coding', monospace;
         }
-        
-        .hidden { display: none; }
+
+        input[type="text"] {
+            background-color: #000;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 10px;
+            width: 60%;
+            font-family: 'Nanum Gothic Coding', monospace;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+
+        button {
+            background-color: #ff00ff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1em;
+            margin-left: 10px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        button:hover {
+            background-color: #c000c0;
+            box-shadow: 0 0 10px #ff00ff;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+
+        .success {
+            color: #00ff41;
+        }
+
+        .error {
+            color: #ff0000;
+        }
+
+        #clue-box {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ff00ff;
+            background-color: #1a1a2a;
+            color: #ffffff;
+            border-radius: 5px;
+        }
     </style>
 </head>
-<body>
+<body class="stage-1">
 
-    <div id="game-container">
-        <!-- 시작/종료 화면들 -->
-        <div id="start-screen" class="modal-backdrop">
-            <div class="modal-content">
-                <h1>코딩 방탈출</h1>
-                <p>"버그를 잡아라! 전설의 개발자를 찾아서"</p>
-                <p>제한 시간은 15분! 모든 문제를 해결하고 탈출하세요.</p>
-                <button id="start-button">게임 시작</button>
-            </div>
-        </div>
-        <div id="game-over-screen" class="modal-backdrop hidden">
-            <div class="modal-content">
-                <h1>TIME OVER</h1>
-                <p>아쉽지만, 시스템 복구에 실패했습니다.</p>
-                <button onclick="location.reload()">다시 시작</button>
-            </div>
-        </div>
-        <div id="success-screen" class="modal-backdrop hidden">
-            <div class="modal-content">
-                <h1>탈출 성공!</h1>
-                <p>시스템 복구 완료! 환영합니다, 새로운 동료!</p>
-                <p id="final-time"></p>
-                <button onclick="location.reload()">다시 시작</button>
-            </div>
-        </div>
+    <div class="game-container">
+        <h1>SYSTEM RECOVERY</h1>
+        <p id="game-intro">시스템에 치명적인 오류가 발생했습니다. 3개의 스테이지를 클리어하여 시스템을 복구하고 탈출하세요.</p>
 
-        <!-- 메인 게임 UI -->
-        <div id="main-game" class="hidden">
-            <div id="header-ui">
-                <div id="stage-display">STAGE 1/3</div>
-                <div id="password-progress">
-                    <div class="password-icon">?</div>
-                    <div class="password-icon">?</div>
-                    <div class="password-icon">?</div>
-                </div>
-                <div id="timer">15:00</div>
+        <!-- Stage 1 -->
+        <div id="stage-1" class="stage active">
+            <h2>STAGE 1: 기초 논리와 알고리즘</h2>
+            <p class="stage-theme">테마: 컴퓨터의 가장 기본적인 사고방식인 '논리'와 '순서'를 배우는 단계입니다.</p>
+            
+            <div id="puzzle-1-1" class="puzzle">
+                <p class="puzzle-title">1-1. 이진법 퍼즐</p>
+                <p class="puzzle-content">'ON'이라는 단어를 이진수 코드로 변환하여 합친 값을 입력하세요.<br>(O=01001111, N=01001110)</p>
+                <input type="text" id="answer-1-1">
+                <button onclick="checkAnswer('1-1', '0100111101001110')">입력</button>
+                <p id="message-1-1" class="message"></p>
             </div>
-            <div id="stage-area"></div>
-            <div id="hint-cat-container">
-                <div id="speech-bubble">고양이를 클릭하면 힌트를 줄게옹.</div>
-                <div id="cat-emoji">😸</div>
+
+            <div id="puzzle-1-2" class="puzzle" style="display:none;">
+                <p class="puzzle-title">1-2. 알고리즘 블록</p>
+                <p class="puzzle-content">로봇이 열쇠까지 도달하기 위한 경로를 명령어(F, L, R)로 조합해야 합니다.<br>(힌트: 2칸 앞으로, 오른쪽으로, 2칸 앞으로, 왼쪽으로)</p>
+                <input type="text" id="answer-1-2">
+                <button onclick="checkAnswer('1-2', 'FFRFFL')">입력</button>
+                <p id="message-1-2" class="message"></p>
+            </div>
+
+            <div id="puzzle-1-3" class="puzzle" style="display:none;">
+                <p class="puzzle-title">1-3. 패턴 추리 (최종 암호의 첫 번째 조각)</p>
+                <p class="puzzle-content">1, 3, 5, 7, ? 수열의 규칙을 찾아 다음 숫자를 맞춰야 합니다.</p>
+                <input type="text" id="answer-1-3">
+                <button onclick="checkAnswer('1-3', '9')">입력</button>
+                <p id="message-1-3" class="message"></p>
             </div>
         </div>
 
-        <!-- 퍼즐 모달들 (닫기 버튼 추가 완료) -->
-        <div id="puzzle-modal-container" class="hidden">
-            <div id="puzzle1-1" class="modal-backdrop hidden">
-                <div class="modal-content">
-                    <button class="close-modal-btn" onclick="closeCurrentModal()">✖</button>
-                    <h2>이진법 퍼즐</h2>
-                    <p>모니터에 'ON'이라는 글자가 보인다.<br>O=01001111, N=01001110<br>두 코드를 합쳐서 입력하라.</p>
-                    <input type="text" id="answer1-1" placeholder="정답 입력">
-                    <button onclick="checkAnswer(1, 1)">입력</button>
-                </div>
+        <!-- Stage 2 -->
+        <div id="stage-2" class="stage">
+            <h2>STAGE 2: 코드 해독과 디버깅</h2>
+            <p class="stage-theme">테마: 간단한 프로그래밍 코드를 읽고, 그 안의 오류를 찾아내는 '디버깅' 개념을 익히는 단계입니다.</p>
+
+            <div id="puzzle-2-1" class="puzzle">
+                <p class="puzzle-title">2-1. 변수는 상자다 (최종 암호의 두 번째 조각)</p>
+                <p class="puzzle-content">A = 10, B = 5일 때, Password = A + B의 값을 계산해야 합니다.</p>
+                <input type="text" id="answer-2-1">
+                <button onclick="checkAnswer('2-1', '15')">입력</button>
+                <p id="message-2-1" class="message"></p>
             </div>
-            <div id="puzzle1-2" class="modal-backdrop hidden">
-                <div class="modal-content">
-                    <button class="close-modal-btn" onclick="closeCurrentModal()">✖</button>
-                    <h2>알고리즘 블록</h2>
-                    <p>로봇이 열쇠에 도달하기 위한 경로는?<br>앞: F, 좌: L, 우: R<br>예시: FFRFFL (앞-앞-오-앞-앞-왼)</p>
-                    <input type="text" id="answer1-2" placeholder="정답 입력 (대문자)">
-                    <button onclick="checkAnswer(1, 2)">입력</button>
-                </div>
+
+            <div id="puzzle-2-2" class="puzzle" style="display:none;">
+                <p class="puzzle-title">2-2. 조건문</p>
+                <p class="puzzle-content">if (color == '????') 코드를 보고, 문을 열기 위한 색깔을 맞춰야 합니다. (힌트: 파란색)</p>
+                <input type="text" id="answer-2-2">
+                <button onclick="checkAnswer('2-2', 'blue')">입력</button>
+                <p id="message-2-2" class="message"></p>
             </div>
-            <div id="puzzle1-3" class="modal-backdrop hidden">
-                <div class="modal-content">
-                    <button class="close-modal-btn" onclick="closeCurrentModal()">✖</button>
-                    <h2>패턴 추리</h2>
-                    <p>다음 숫자는 무엇일까?<br>1, 3, 5, 7, ?</p>
-                    <input type="text" id="answer1-3" placeholder="정답 입력">
-                    <button onclick="checkAnswer(1, 3)">입력</button>
-                </div>
-            </div>
-            <div id="puzzle2-1" class="modal-backdrop hidden">
-                <div class="modal-content">
-                    <button class="close-modal-btn" onclick="closeCurrentModal()">✖</button>
-                    <h2>변수는 상자다</h2>
-                    <p>A = 10, B = 5<br>Password = A + B<br>Password의 값은?</p>
-                    <input type="text" id="answer2-1" placeholder="정답 입력">
-                    <button onclick="checkAnswer(2, 1)">입력</button>
-                </div>
-            </div>
-            <div id="puzzle2-2" class="modal-backdrop hidden">
-                <div class="modal-content">
-                    <button class="close-modal-btn" onclick="closeCurrentModal()">✖</button>
-                    <h2>조건문</h2>
-                    <p>if (color == '????') { open door; }<br>문을 열기 위한 색깔은?</p>
-                    <input type="text" id="answer2-2" placeholder="정답 입력 (영어 소문자)">
-                    <button onclick="checkAnswer(2, 2)">입력</button>
-                </div>
-            </div>
-            <div id="puzzle2-3" class="modal-backdrop hidden">
-                <div class="modal-content">
-                    <button class="close-modal-btn" onclick="closeCurrentModal()">✖</button>
-                    <h2>디버깅</h2>
-                    <p>print("Hello World)<br>위 코드에서 빠진 기호는?</p>
-                    <input type="text" id="answer2-3" placeholder="정답 입력">
-                    <button onclick="checkAnswer(2, 3)">입력</button>
-                </div>
-            </div>
-            <div id="puzzle3-1" class="modal-backdrop hidden">
-                <div class="modal-content">
-                    <button class="close-modal-btn" onclick="closeCurrentModal()">✖</button>
-                    <h2>최종 시스템 실행</h2>
-                    <p>지금까지 얻은 단서들을 조합하여<br>최종 암호를 입력하라.</p>
-                    <input type="text" id="answer3-1" placeholder="최종 암호 입력">
-                    <button onclick="checkAnswer(3, 1)">시스템 복구</button>
-                </div>
+
+            <div id="puzzle-2-3" class="puzzle" style="display:none;">
+                <p class="puzzle-title">2-3. 디버깅 (최종 암호의 세 번째 조각)</p>
+                <p class="puzzle-content">print("Hello World) 코드에서 문법적으로 빠진 기호 한 개를 찾아 입력해야 합니다.</p>
+                <input type="text" id="answer-2-3">
+                <button onclick="checkAnswer('2-3', '&quot;')">입력</button>
+                <p id="message-2-3" class="message"></p>
             </div>
         </div>
+
+        <!-- Stage 3 -->
+        <div id="stage-3" class="stage">
+            <h2>STAGE 3: 최종 시스템 실행</h2>
+            <p class="stage-theme">테마: 지금까지 모은 모든 단서를 종합하여 마지막 시스템을 복구하고 탈출하는 최종 단계입니다.</p>
+            
+            <div id="clue-box">
+                획득한 최종 암호 조각: <span id="clue-1">?</span> <span id="clue-2">?</span> <span id="clue-3">?</span>
+            </div>
+
+            <div id="puzzle-3-1" class="puzzle">
+                <p class="puzzle-title">3-1. 최종 시스템 실행</p>
+                <p class="puzzle-content">지금까지 얻은 '최종 암호 조각'들을 순서대로 조합하여 입력해야 합니다.</p>
+                <input type="text" id="answer-3-1">
+                <button onclick="checkAnswer('3-1', '915&quot;')">입력</button>
+                <p id="message-3-1" class="message"></p>
+            </div>
+        </div>
+
+        <!-- Game Clear Screen -->
+        <div id="game-clear" class="stage">
+            <h1>SYSTEM RECOVERY COMPLETE!</h1>
+            <p class="success" style="font-size: 1.5em;">축하합니다! 모든 시스템을 복구하고 탈출에 성공했습니다!</p>
+        </div>
+
     </div>
 
     <script>
-        // --- DOM 요소 가져오기 ---
-        const mainGame = document.getElementById('main-game');
-        const startButton = document.getElementById('start-button');
-        const stageDisplay = document.getElementById('stage-display');
-        const timerDisplay = document.getElementById('timer');
-        const passwordIcons = document.querySelectorAll('.password-icon');
-        const stageArea = document.getElementById('stage-area');
-        const hintCat = document.getElementById('hint-cat-container');
-        const speechBubble = document.getElementById('speech-bubble');
-        const puzzleModalContainer = document.getElementById('puzzle-modal-container');
-
-        // --- 게임 상태 변수 ---
-        let currentStage = 1;
-        let timeLeft = 900;
-        let timerInterval;
-        let passwordParts = ['?', '?', '?'];
-        let solvedClues = [];
-
-        // --- 게임 데이터 ---
-        const gameData = {
-            1: {
-                background: '1-1.jpg',
-                clues: [
-                    { id: '1-1', top: '25%', left: '10%', width: '150px', height: '150px' },
-                    { id: '1-2', top: '60%', left: '30%', width: '200px', height: '150px' },
-                    { id: '1-3', top: '30%', left: '70%', width: '180px', height: '100px' }
-                ],
-                answers: { '1-1': '0100111101001110', '1-2': 'FFRFFL', '1-3': '9' },
-                hint: '1단계는 컴퓨터의 기본에 대한 거야. 이진법, 순서도, 그리고 규칙 찾기! 주변을 잘 살펴봐.'
-            },
-            2: {
-                background: '2-1.jpg',
-                clues: [
-                    { id: '2-1', top: '50%', left: '5%', width: '180px', height: '180px' },
-                    { id: '2-2', top: '20%', left: '40%', width: '120px', height: '200px' },
-                    { id: '2-3', top: '60%', left: '75%', width: '200px', height: '120px' }
-                ],
-                answers: { '2-1': '15', '2-2': 'blue', '2-3': '"' },
-                hint: '코드는 약속이야. 변수에 값을 넣고, 조건에 따라 행동하고, 문법을 정확히 지켜야 해. 오타는 없는지 잘 봐!'
-            },
-            3: {
-                background: '3-2.jpg',
-                clues: [
-                    { id: '3-1', top: '40%', left: '35%', width: '250px', height: '150px' }
-                ],
-                answers: { '3-1': '915"' },
-                hint: '지금까지 모은 단서들을 순서대로 합쳐봐. 1단계 패턴의 답, 2단계 비밀번호의 값, 그리고 2단계 디버깅의 답이야.'
-            }
+        const clues = {
+            '1-3': null,
+            '2-1': null,
+            '2-3': null,
         };
 
-        // --- 게임 로직 함수 ---
-        function startGame() {
-            document.getElementById('start-screen').classList.add('hidden');
-            mainGame.classList.remove('hidden');
-            timerInterval = setInterval(updateTimer, 1000);
-            loadStage(1);
-        }
+        function checkAnswer(puzzleId, correctAnswer) {
+            const userAnswer = document.getElementById(`answer-${puzzleId}`).value.trim();
+            const messageEl = document.getElementById(`message-${puzzleId}`);
 
-        function updateTimer() {
-            timeLeft--;
-            const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-            const seconds = (timeLeft % 60).toString().padStart(2, '0');
-            timerDisplay.textContent = `${minutes}:${seconds}`;
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                endGame(false);
+            // 쌍따옴표 퍼즐 대응: 다양한 입력을 모두 정답으로 인식
+            let answerToCheck = correctAnswer;
+            if (
+                correctAnswer === '\"' ||
+                correctAnswer === '"' ||
+                correctAnswer === '&quot;' ||
+                correctAnswer === '&#34;' ||
+                correctAnswer === '&#x22;'
+            ) {
+                answerToCheck = '"';
             }
-        }
 
-        function loadStage(stageNum) {
-            currentStage = stageNum;
-            const stage = gameData[stageNum];
-            stageDisplay.textContent = `STAGE ${stageNum}/3`;
-            stageArea.style.backgroundImage = `url(./${stage.background})`;
-            stageArea.innerHTML = '';
-            stage.clues.forEach(clueData => {
-                if (solvedClues.includes(clueData.id)) return;
-                const clueEl = document.createElement('div');
-                clueEl.className = 'clue-box';
-                clueEl.id = `clue-${clueData.id}`;
-                clueEl.style.top = clueData.top;
-                clueEl.style.left = clueData.left;
-                clueEl.style.width = clueData.width;
-                clueEl.style.height = clueData.height;
-                clueEl.onclick = () => openPuzzleModal(clueData.id);
-                stageArea.appendChild(clueEl);
-            });
-        }
-
-        function openPuzzleModal(puzzleId) {
-            document.querySelectorAll('#puzzle-modal-container > div').forEach(modal => {
-                modal.classList.add('hidden');
-            });
-            const targetModal = document.getElementById(`puzzle${puzzleId}`);
-            if (targetModal) {
-                targetModal.classList.remove('hidden');
-                puzzleModalContainer.classList.remove('hidden');
+            // 사용자 입력도 동일하게 변환
+            let userToCheck = userAnswer;
+            if (
+                userAnswer === '\"' ||
+                userAnswer === '"' ||
+                userAnswer === '&quot;' ||
+                userAnswer === '&#34;' ||
+                userAnswer === '&#x22;'
+            ) {
+                userToCheck = '"';
             }
-        }
 
-        // [새로 추가] 현재 열린 모달 닫기 함수
-        function closeCurrentModal() {
-            puzzleModalContainer.classList.add('hidden');
-        }
+            // 정답을 대소문자 구분 없이 체크 (예: FFRFFL, ffrffl 모두 정답 처리)
+            if (String(userToCheck).toLowerCase() === String(answerToCheck).toLowerCase()) {
+                messageEl.textContent = 'ACCESS GRANTED: 정답입니다.';
+                messageEl.className = 'message success';
+                document.getElementById(`answer-${puzzleId}`).disabled = true;
+                document.querySelector(`#puzzle-${puzzleId} button`).disabled = true;
 
-        function checkAnswer(stageNum, puzzleNum) {
-            const puzzleId = `${stageNum}-${puzzleNum}`;
-            const answer = document.getElementById(`answer${puzzleId}`).value.trim();
-            const correctAnswer = gameData[stageNum].answers[puzzleId];
-
-            if (answer === correctAnswer) {
-                alert('정답입니다!');
-                const clueEl = document.getElementById(`clue-${puzzleId}`);
-                if(clueEl) clueEl.classList.add('solved');
-                solvedClues.push(puzzleId);
-
-                if (stageNum === 1) passwordParts[0] = gameData[1].answers['1-3'];
-                else if (stageNum === 2) {
-                    passwordParts[1] = gameData[2].answers['2-1'];
-                    passwordParts[2] = gameData[2].answers['2-3'];
-                }
-                updatePasswordDisplay();
-                closeCurrentModal(); // 정답 맞춰도 창 닫기
-                
-                const stageClues = gameData[stageNum].clues.map(c => c.id);
-                const isStageClear = stageClues.every(id => solvedClues.includes(id));
-
-                if (isStageClear) {
-                    if (currentStage < 3) {
-                        alert(`스테이지 ${currentStage} 클리어! 다음 스테이지로 이동합니다.`);
-                        loadStage(currentStage + 1);
-                    } else {
-                        endGame(true);
-                    }
-                }
+                // 다음 퍼즐 또는 스테이지로 진행
+                setTimeout(() => {
+                    proceedToNext(puzzleId, answerToCheck);
+                }, 1000);
             } else {
-                alert('틀렸습니다. 다시 생각해보세요.');
+                messageEl.textContent = 'ACCESS DENIED: 오답입니다. 다시 시도하세요.';
+                messageEl.className = 'message error';
             }
         }
 
-        function updatePasswordDisplay() {
-            passwordParts.forEach((part, index) => {
-                if (part !== '?') {
-                    passwordIcons[index].textContent = '✓';
-                    passwordIcons[index].classList.add('solved');
-                }
-            });
-        }
+        function proceedToNext(clearedPuzzleId, answer) {
+            // 암호 조각 저장
+            if (clues.hasOwnProperty(clearedPuzzleId)) {
+                clues[clearedPuzzleId] = answer;
+                updateClueBox();
+            }
 
-        function showHint() {
-            speechBubble.textContent = gameData[currentStage].hint;
-            speechBubble.classList.add('show');
-            setTimeout(() => { speechBubble.classList.remove('show'); }, 4000);
-        }
+            // 다음 퍼즐 표시 로직
+            const nextPuzzleMap = {
+                '1-1': '1-2', '1-2': '1-3',
+                '2-1': '2-2', '2-2': '2-3',
+            };
 
-        function endGame(isSuccess) {
-            clearInterval(timerInterval);
-            mainGame.classList.add('hidden');
-            if (isSuccess) {
-                const timeTaken = 900 - timeLeft;
-                const minutes = Math.floor(timeTaken / 60);
-                const seconds = timeTaken % 60;
-                document.getElementById('final-time').textContent = `클리어 시간: ${minutes}분 ${seconds}초`;
-                document.getElementById('success-screen').classList.remove('hidden');
-            } else {
-                document.getElementById('game-over-screen').classList.remove('hidden');
+            if (nextPuzzleMap[clearedPuzzleId]) {
+                const nextPuzzleId = `puzzle-${nextPuzzleMap[clearedPuzzleId]}`;
+                document.getElementById(nextPuzzleId).style.display = 'block';
+            }
+
+            // 스테이지 전환 로직 및 배경 변경
+            const body = document.body;
+            body.classList.remove('stage-1', 'stage-2', 'stage-3');
+            if (clearedPuzzleId === '1-3') {
+                document.getElementById('stage-1').classList.remove('active');
+                document.getElementById('stage-2').classList.add('active');
+                body.classList.add('stage-2');
+            } else if (clearedPuzzleId === '2-3') {
+                document.getElementById('stage-2').classList.remove('active');
+                document.getElementById('stage-3').classList.add('active');
+                body.classList.add('stage-3');
+            } else if (clearedPuzzleId === '3-1') {
+                document.getElementById('stage-3').classList.remove('active');
+                document.getElementById('game-clear').classList.add('active');
+                body.style.backgroundImage = 'none';
             }
         }
 
-        // --- 이벤트 리스너 ---
-        startButton.addEventListener('click', startGame);
-        hintCat.addEventListener('click', showHint);
+        function updateClueBox() {
+            document.getElementById('clue-1').textContent = clues['1-3'] || '?';
+            document.getElementById('clue-2').textContent = clues['2-1'] || '?';
+            document.getElementById('clue-3').textContent = clues['2-3'] || '?';
+        }
     </script>
+
 </body>
 </html>
